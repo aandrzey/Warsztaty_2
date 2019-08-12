@@ -6,11 +6,11 @@ import java.util.Arrays;
 public class SolutionDao {
 
     private static final String CREATE_SOLUTION_QUERY =
-            "INSERT INTO solution(created, updated, description, exercise_id, users_id) VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO solution(created, exercise_id, users_id) VALUES (current_timestamp(), ?, ?)";
     private static final String READ_SOLUTION_QUERY =
             "SELECT * FROM solution where id = ?";
     private static final String UPDATE_SOLUTION_QUERY =
-            "UPDATE users SET updated = ?, description = ?, exercise_id = ?, users_id = ? where id = ?";
+            "UPDATE users SET updated = current_timestamp(), description = ?, exercise_id = ?, users_id = ? where id = ?";
     private static final String DELETE_SOLUTION_QUERY =
             "DELETE FROM solution WHERE id = ?";
     private static final String FIND_ALL_SOLUTIONS_QUERY =
@@ -24,16 +24,13 @@ public class SolutionDao {
         try (Connection conn = DBUtil.getConnection()) {
             PreparedStatement statement =
                     conn.prepareStatement(CREATE_SOLUTION_QUERY, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, "current_timestamp()");
-            statement.setString(2, "current_timestamp()");
-            statement.setString(3, solution.getDescription());
             if (solution.getExcercise().getId() > 0) {
-                statement.setInt(4, solution.getExcercise().getId());
+                statement.setInt(1, solution.getExcercise().getId());
             } else {
                 throw new IllegalArgumentException("exercise_id nie może być mniejsze niż 0");
             }
             if (solution.getUser().getId() > 0) {
-                statement.setInt(5, solution.getUser().getId());
+                statement.setInt(2, solution.getUser().getId());
             } else {
                 throw new IllegalArgumentException("users_id nie może być mniejsze niż 0");
             }
@@ -77,19 +74,18 @@ public class SolutionDao {
     public void update(Solution solution) {
         try (Connection conn = DBUtil.getConnection()) {
             PreparedStatement statement = conn.prepareStatement(UPDATE_SOLUTION_QUERY);
-            statement.setString(1, "current_timestamp()");
-            statement.setString(2, solution.getDescription());
+            statement.setString(1, solution.getDescription());
             if (solution.getExcercise().getId() > 0) {
-                statement.setInt(3, solution.getExcercise().getId());
+                statement.setInt(2, solution.getExcercise().getId());
             } else {
                 throw new IllegalArgumentException("exercise_id nie może być mniejsze niż 0");
             }
             if (solution.getUser().getId() > 0) {
-                statement.setInt(4, solution.getUser().getId());
+                statement.setInt(3, solution.getUser().getId());
             } else {
                 throw new IllegalArgumentException("users_id nie może być mniejsze niż 0");
             }
-            statement.setInt(5, solution.getId());
+            statement.setInt(4, solution.getId());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

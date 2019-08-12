@@ -63,7 +63,7 @@ public class UserManagement {
     }
 
 
-    private static void displayAllUsers(UserDao userDao) {
+    protected static void displayAllUsers(UserDao userDao) {
         System.out.println("List of all users:");
         User[] users = userDao.findAll();
         for (User user : users) {
