@@ -6,7 +6,7 @@ import java.util.Arrays;
 public class SolutionDao {
 
     private static final String CREATE_SOLUTION_QUERY =
-            "INSERT INTO solution(created, exercise_id, users_id) VALUES (current_timestamp(), ?, ?)";
+            "INSERT INTO solution(created, description, exercise_id, users_id) VALUES (current_timestamp(), ?, ?, ?)";
     private static final String READ_SOLUTION_QUERY =
             "SELECT * FROM solution where id = ?";
     private static final String UPDATE_SOLUTION_QUERY =
@@ -24,13 +24,14 @@ public class SolutionDao {
         try (Connection conn = DBUtil.getConnection()) {
             PreparedStatement statement =
                     conn.prepareStatement(CREATE_SOLUTION_QUERY, Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, solution.getDescription());
             if (solution.getExcercise().getId() > 0) {
-                statement.setInt(1, solution.getExcercise().getId());
+                statement.setInt(2, solution.getExcercise().getId());
             } else {
                 throw new IllegalArgumentException("exercise_id nie może być mniejsze niż 0");
             }
             if (solution.getUser().getId() > 0) {
-                statement.setInt(2, solution.getUser().getId());
+                statement.setInt(3, solution.getUser().getId());
             } else {
                 throw new IllegalArgumentException("users_id nie może być mniejsze niż 0");
             }
@@ -164,7 +165,7 @@ public class SolutionDao {
     public Solution[] findAllByExercise(int exerciseId) {
         try (Connection conn = DBUtil.getConnection()) {
             Solution[] solutions = new Solution[0];
-            PreparedStatement statement = conn.prepareStatement(FIND_ALL_BY_USER_ID);
+            PreparedStatement statement = conn.prepareStatement(FIND_ALL_BY_EXERCISE_ID);
             statement.setInt(1, exerciseId);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -187,4 +188,5 @@ public class SolutionDao {
             return null;
         }
     }
+
 }
